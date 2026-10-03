@@ -1,0 +1,18 @@
+# How many blocks to place per server tick. Lower = smoother server, slower build.
+blocks-per-tick: 4000
+
+# Default number of spawn pads for /lmsmap arena (2-24).
+arena-players: 12
+
+# Where /lmsmap export writes map folders, relative to the plugins folder.
+export-folder: "Nature7/maps/last_standing"
+
+# What happens when a player steps on the gold PLAY pad in the hub.
+join-pad:
+  # Command run AS the player, e.g. "lms join". Leave empty to only show the message.
+  command: ""
+  message: "&aYou stepped on the PLAY pad!"
+
+# Everything below is written automatically after a build:
+#   hub.world / hub.origin / hub.spawns / hub.regions.join_pad
+#   arena.world / arena.origin / arena.spawns / arena.radius / arena.regions.center_chest

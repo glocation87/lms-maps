@@ -1,0 +1,14 @@
+name: LmsMaps
+version: '${version}'
+main: studio.chef.lmsmaps.LmsMapsPlugin
+api-version: '26.2'
+description: Generates the Last Man Standing lobby hub and battle arena.
+commands:
+  lmsmap:
+    description: Build / teleport to the LMS hub and arena.
+    usage: /lmsmap <hub|arena|tp|info>
+    permission: lmsmaps.admin
+permissions:
+  lmsmaps.admin:
+    description: Build and manage LMS maps.
+    default: op
