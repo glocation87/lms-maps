@@ -78,12 +78,14 @@ public final class BlockBuffer {
     private static final String[] FRAGILE = {
             "lantern", "torch", "sign", "pressure_plate", "fern", "dandelion", "poppy", "cornflower",
             "oxeye_daisy", "allium", "lily_pad", "sugar_cane", "amethyst_cluster", "water", "carpet",
-            "end_rod", "vine", "azure_bluet"
+            "end_rod", "vine", "azure_bluet", "cactus", "dead_bush", "dry_grass", "roots", "sprouts", "fungus", "lava"
     };
 
     /** Blocks that need something under/behind them: placed in a second pass. */
     public static boolean isFragile(String state) {
         String id = id(state);
+        // snow layers, but not snow_block
+        if (id.equals("snow")) return true;
         for (String f : FRAGILE) if (id.contains(f)) return true;
         return false;
     }

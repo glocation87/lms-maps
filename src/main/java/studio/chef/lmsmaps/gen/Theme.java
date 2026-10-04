@@ -64,7 +64,116 @@ public final class Theme {
         .flora("fern", "fern", "dandelion", "poppy", "cornflower", "oxeye_daisy")
         .build();
 
-    public static final List<Theme> ALL = List.of(COLOSSEUM);
+    public static final Theme DESERT = COLOSSEUM.toBuilder("desert", "Desert Ruins")
+        .set(Part.GROUND, "sand")
+        .set(Part.GROUND_SPECKLE, "red_sand")
+        .set(Part.GROUND_LUSH, "red_sand")
+        .set(Part.GROUND_BARE, "sandstone")
+        .set(Part.GROUND_LOOSE, "smooth_sandstone")
+        .set(Part.SOIL, "sandstone")
+        .set(Part.PATH, "smooth_sandstone")
+        .set(Part.BRICK, "cut_sandstone")
+        .set(Part.BRICK_MOSSY, "sandstone")
+        .set(Part.BRICK_CRACKED, "smooth_sandstone")
+        .set(Part.BRICK_CHISELED, "chiseled_sandstone")
+        .set(Part.TRIM, "cut_red_sandstone")
+        .set(Part.RAILING, "sandstone_wall")
+        .set(Part.SEAT, "sandstone_stairs")
+        .set(Part.SEAT_ALT, "smooth_sandstone_stairs")
+        .set(Part.STAIRS, "sandstone_stairs")
+        .set(Part.SLAB, "sandstone_slab[type=bottom]")
+        .set(Part.POST, "sandstone_wall")
+        .set(Part.GATE_SILL, "chiseled_red_sandstone")
+        .set(Part.GATE_BACK, "red_sandstone")
+        .set(Part.GATE_TOP, "chiseled_red_sandstone")
+        .set(Part.PAD_RIM, "cut_red_sandstone")
+        .set(Part.LOG, "acacia_log")
+        .set(Part.LEAVES, "acacia_leaves[persistent=true]")
+        .set(Part.ALT_LOG, "jungle_log")
+        .set(Part.ALT_LEAVES, "jungle_leaves[persistent=true]")
+        .set(Part.UNDERSIDE, "sandstone")
+        .rocks("sandstone", "red_sandstone", "smooth_sandstone", "terracotta")
+        .underside("sandstone", "red_sandstone", "terracotta", "orange_terracotta")
+        .flora("dead_bush", "dead_bush", "short_dry_grass", "cactus")
+        .build();
+
+    public static final Theme SNOW = COLOSSEUM.toBuilder("snow", "Frostkeep")
+        .set(Part.GROUND, "snow_block")
+        .set(Part.GROUND_SPECKLE, "calcite")
+        .set(Part.GROUND_LUSH, "packed_ice")
+        .set(Part.GROUND_BARE, "gravel")
+        .set(Part.GROUND_LOOSE, "stone")
+        .set(Part.BRICK, "deepslate_bricks")
+        .set(Part.BRICK_MOSSY, "deepslate_tiles")
+        .set(Part.BRICK_CRACKED, "cracked_deepslate_bricks")
+        .set(Part.BRICK_CHISELED, "chiseled_deepslate")
+        .set(Part.TRIM, "polished_diorite")
+        .set(Part.RAILING, "deepslate_brick_wall")
+        .set(Part.SEAT, "deepslate_brick_stairs")
+        .set(Part.SEAT_ALT, "polished_deepslate_stairs")
+        .set(Part.STAIRS, "deepslate_brick_stairs")
+        .set(Part.SLAB, "deepslate_brick_slab[type=bottom]")
+        .set(Part.POST, "deepslate_brick_wall")
+        .set(Part.GATE_SILL, "polished_deepslate")
+        .set(Part.GATE_BACK, "deepslate_tiles")
+        .set(Part.GATE_TOP, "chiseled_deepslate")
+        .set(Part.PAD, "diamond_block")
+        .set(Part.PAD_RIM, "polished_diorite")
+        // a frozen pond, ice on top with water underneath
+        .set(Part.FLUID, "ice")
+        .set(Part.SHORE, "gravel")
+        .set(Part.BED, "packed_ice")
+        .set(Part.FLOATER, null)
+        .set(Part.REED, null)
+        .set(Part.LOG, "spruce_log")
+        .set(Part.LEAVES, "spruce_leaves[persistent=true]")
+        .set(Part.CRATE_ALT, "spruce_planks")
+        .rocks("stone", "cobblestone", "andesite", "diorite")
+        .underside("stone", "deepslate", "tuff", "cobblestone")
+        .flora("snow[layers=1]", "snow[layers=1]", "snow[layers=2]", "fern")
+        .build();
+
+    public static final Theme NETHER = COLOSSEUM.toBuilder("nether", "Inferno")
+        .set(Part.GROUND, "crimson_nylium")
+        .set(Part.GROUND_SPECKLE, "shroomlight")
+        .set(Part.GROUND_LUSH, "warped_nylium")
+        .set(Part.GROUND_BARE, "netherrack")
+        .set(Part.GROUND_LOOSE, "blackstone")
+        .set(Part.SOIL, "netherrack")
+        .set(Part.PATH, "soul_soil")
+        .set(Part.BRICK, "nether_bricks")
+        .set(Part.BRICK_MOSSY, "red_nether_bricks")
+        .set(Part.BRICK_CRACKED, "cracked_nether_bricks")
+        .set(Part.BRICK_CHISELED, "chiseled_nether_bricks")
+        .set(Part.TRIM, "polished_blackstone")
+        .set(Part.RAILING, "nether_brick_fence")
+        .set(Part.SEAT, "nether_brick_stairs")
+        .set(Part.SEAT_ALT, "red_nether_brick_stairs")
+        .set(Part.STAIRS, "nether_brick_stairs")
+        .set(Part.SLAB, "nether_brick_slab[type=bottom]")
+        .set(Part.POST, "red_nether_brick_wall")
+        .set(Part.LIGHT, "soul_lantern")
+        .set(Part.PAD, "crying_obsidian")
+        .set(Part.PAD_RIM, "polished_blackstone")
+        .set(Part.FLUID, "lava")
+        .set(Part.FLUID_DEEP, "lava")
+        .set(Part.SHORE, "basalt")
+        .set(Part.BED, "obsidian")
+        .set(Part.FLOATER, null)
+        .set(Part.REED, null)
+        // nether wood doesn't burn, so the lava pond can't set the arena on fire
+        .set(Part.LOG, "crimson_stem")
+        .set(Part.LEAVES, "nether_wart_block")
+        .set(Part.ALT_LOG, "warped_stem")
+        .set(Part.ALT_LEAVES, "warped_wart_block")
+        .set(Part.CRATE_ALT, "bone_block")
+        .set(Part.UNDERSIDE, "netherrack")
+        .rocks("blackstone", "basalt", "netherrack", "polished_basalt")
+        .underside("netherrack", "blackstone", "basalt", "soul_soil")
+        .flora("crimson_roots", "crimson_roots", "crimson_fungus", "nether_sprouts", "warped_roots")
+        .build();
+
+    public static final List<Theme> ALL = List.of(COLOSSEUM, DESERT, SNOW, NETHER);
 
     private final String id;
     private final String displayName;
@@ -110,6 +219,11 @@ public final class Theme {
 
     public String[] flora() {
         return flora.clone();
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 
     Builder toBuilder(String newId, String newDisplayName) {
