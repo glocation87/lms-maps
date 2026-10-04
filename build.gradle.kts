@@ -1,5 +1,6 @@
 plugins {
     java
+    id("xyz.jpenilla.run-paper") version "3.1.0"
 }
 
 group = "studio.chef"
@@ -35,6 +36,13 @@ tasks {
         useJUnitPlatform()
         // MockBukkit's ByteBuddy still uses sun.misc.Unsafe
         jvmArgs("--sun-misc-unsafe-memory-access=allow")
+    }
+
+    runServer {
+        minecraftVersion("26.2")
+        jvmArgs("-Dcom.mojang.eula.agree=true")
+        // 25565 test-server, 25566 Nature7, 25567 Combat7
+        args("--port", "25568")
     }
 
     processResources {
