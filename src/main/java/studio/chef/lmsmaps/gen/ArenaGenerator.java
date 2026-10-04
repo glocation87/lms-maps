@@ -67,11 +67,11 @@ public final class ArenaGenerator {
                 int top;
                 if (d <= R + 0.5) {                                   // battlefield
                     int h = H[x + R][z + R];
-                    b.set(x, h, z, surface(t, seed, x, z));
+                    b.set(x, h, z, t.surface(seed, x, z));
                     for (int y = h - 1; y >= -3; y--) b.set(x, y, z, t.get(Part.SOIL));
                     top = -4;
                 } else if (d <= R + 1.5) {                            // inner wall
-                    for (int y = 0; y < WALL; y++) b.set(x, y, z, brick(t, seed, x, y, z));
+                    for (int y = 0; y < WALL; y++) b.set(x, y, z, t.brick(seed, x, y, z));
                     b.set(x, WALL, z, t.get(Part.TRIM));
                     b.set(x, WALL + 1, z, t.get(Part.RAILING));
                     top = -1;
@@ -83,7 +83,7 @@ public final class ArenaGenerator {
                     top = seat - 1;
                 } else {                                              // outer rim
                     int rimTop = WALL + ROWS + 2;
-                    for (int y = WALL + ROWS - 1; y <= rimTop; y++) b.set(x, y, z, brick(t, seed, x, y, z));
+                    for (int y = WALL + ROWS - 1; y <= rimTop; y++) b.set(x, y, z, t.brick(seed, x, y, z));
                     top = WALL + ROWS - 2;
                 }
                 for (int y = top; y >= bottom; y--)
@@ -139,7 +139,7 @@ public final class ArenaGenerator {
             for (int z = -9; z <= 9; z++) {
                 double d = dist(x, z);
                 if (d > 8.2) continue;
-                for (int y = 1; y <= 3; y++) b.set(x, y, z, brick(t, seed, x, y, z));
+                for (int y = 1; y <= 3; y++) b.set(x, y, z, t.brick(seed, x, y, z));
                 if (d < 1.5) b.set(x, 3, z, t.get(Part.BRICK_CHISELED));
             }
         for (int dir = 0; dir < 4; dir++) {
@@ -155,7 +155,7 @@ public final class ArenaGenerator {
             double a = Math.toRadians(22.5 + k * 45);
             int px = (int) Math.round(Math.cos(a) * 6.3), pz = (int) Math.round(Math.sin(a) * 6.3);
             int h = 2 + rng.nextInt(4);
-            for (int y = 4; y < 4 + h; y++) b.set(px, y, pz, brick(t, seed, px, y, pz));
+            for (int y = 4; y < 4 + h; y++) b.set(px, y, pz, t.brick(seed, px, y, pz));
             b.set(px, 4 + h, pz, h >= 4 ? t.get(Part.BRICK_CHISELED) : t.get(Part.SLAB));
         }
         b.set(0, 4, 0, "chest[facing=south]");
@@ -242,7 +242,7 @@ public final class ArenaGenerator {
             int x = (int) Math.round(cx + tx * i), z = (int) Math.round(cz + tz * i);
             int base = h(H, x, z);
             int height = 1 + rng.nextInt(3) + (Math.abs(i) < len / 3 ? 1 : 0);
-            for (int y = base + 1; y <= base + height; y++) b.set(x, y, z, brick(t, seed, x, y, z));
+            for (int y = base + 1; y <= base + height; y++) b.set(x, y, z, t.brick(seed, x, y, z));
             if (rng.nextDouble() < 0.3) b.set(x, base + height + 1, z, t.get(Part.SLAB));
         }
     }
@@ -280,19 +280,5 @@ public final class ArenaGenerator {
                 b.set(cx + dx, h(H, cx + dx, cz + dz) + 1, cz + dz, rng.nextDouble() < 0.6 ? t.get(Part.CRATE) : t.get(Part.CRATE_ALT));
         b.set(cx, h(H, cx, cz) + 2, cz, t.get(Part.CRATE));
         if (rng.nextBoolean()) b.set(cx - 1, h(H, cx - 1, cz) + 1, cz, t.get(Part.CRATE_ALT));
-    }
-
-    private static String surface(Theme t, long seed, int x, int z) {
-        double n = noise(seed + 77, x / 6.0, z / 6.0), r = hash(seed + 3, x, z);
-        if (n > 0.78) return t.get(Part.GROUND_LUSH);
-        if (n < 0.16) return r < 0.5 ? t.get(Part.GROUND_BARE) : t.get(Part.GROUND_LOOSE);
-        if (n < 0.24) return t.get(Part.GROUND_BARE);
-        return r < 0.04 ? t.get(Part.GROUND_SPECKLE) : t.get(Part.GROUND);
-    }
-
-    private static String brick(Theme t, long seed, int x, int y, int z) {
-        double r = hash(seed + 13, x, y, z);
-        if (r < 0.15) return t.get(Part.BRICK_CRACKED);
-        return r < 0.35 ? t.get(Part.BRICK_MOSSY) : t.get(Part.BRICK);
     }
 }

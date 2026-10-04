@@ -209,6 +209,22 @@ public final class Theme {
         return parts.get(part);
     }
 
+    // weathered brick mix, the same block at the same spot for the same seed
+    public String brick(long seed, int x, int y, int z) {
+        double r = Geo.hash(seed + 13, x, y, z);
+        if (r < 0.15) return get(Part.BRICK_CRACKED);
+        return r < 0.35 ? get(Part.BRICK_MOSSY) : get(Part.BRICK);
+    }
+
+    // patchy ground, mostly the main block with lush, bare and loose spots from noise
+    public String surface(long seed, int x, int z) {
+        double n = Geo.noise(seed + 77, x / 6.0, z / 6.0), r = Geo.hash(seed + 3, x, z);
+        if (n > 0.78) return get(Part.GROUND_LUSH);
+        if (n < 0.16) return r < 0.5 ? get(Part.GROUND_BARE) : get(Part.GROUND_LOOSE);
+        if (n < 0.24) return get(Part.GROUND_BARE);
+        return r < 0.04 ? get(Part.GROUND_SPECKLE) : get(Part.GROUND);
+    }
+
     public String[] rocks() {
         return rocks.clone();
     }

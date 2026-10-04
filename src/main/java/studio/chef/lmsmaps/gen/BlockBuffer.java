@@ -21,6 +21,10 @@ public final class BlockBuffer {
     private final List<Spawn> spawns = new ArrayList<>();
     private final Map<String, Region> regions = new LinkedHashMap<>();
     private final Map<String, String> meta = new LinkedHashMap<>();
+    // named points for a game's map.yml section: lists (island-chests) and single points (center, red-flag)
+    private final Map<String, List<Spawn>> markers = new LinkedHashMap<>();
+    private final Map<String, Spawn> points = new LinkedHashMap<>();
+    private Region bounds;
 
     // Optional clearing volume (cylinder), applied lazily by BuildTask.
     private int clearRadius = -1, clearMinY, clearMaxY;
@@ -55,6 +59,12 @@ public final class BlockBuffer {
     public void spawn(double x, double y, double z, float yaw) { spawns.add(new Spawn(x, y, z, yaw)); }
     public void region(String name, Region r) { regions.put(name, r); }
     public void meta(String k, Object v) { meta.put(k, String.valueOf(v)); }
+    public void marker(String key, double x, double y, double z, float yaw) {
+        markers.computeIfAbsent(key, k -> new ArrayList<>()).add(new Spawn(x, y, z, yaw));
+    }
+    public void point(String key, double x, double y, double z, float yaw) { points.put(key, new Spawn(x, y, z, yaw)); }
+    /** Where the game counts you as in the map, when that isn't just the clearing cylinder. */
+    public void bounds(Region r) { bounds = r; }
     public void clearCylinder(int radius, int minY, int maxY) {
         clearRadius = radius; clearMinY = minY; clearMaxY = maxY;
     }
@@ -65,6 +75,9 @@ public final class BlockBuffer {
     public List<Spawn> spawns() { return spawns; }
     public Map<String, Region> regions() { return regions; }
     public Map<String, String> meta() { return meta; }
+    public Map<String, List<Spawn>> markers() { return markers; }
+    public Map<String, Spawn> points() { return points; }
+    public Region bounds() { return bounds; }
     public int clearRadius() { return clearRadius; }
     public int clearMinY() { return clearMinY; }
     public int clearMaxY() { return clearMaxY; }
