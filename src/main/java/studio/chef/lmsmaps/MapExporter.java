@@ -27,6 +27,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import studio.chef.lmsmaps.gen.ArenaGenerator;
 import studio.chef.lmsmaps.gen.BlockBuffer;
+import studio.chef.lmsmaps.gen.Theme;
 
 // Builds an arena into its own void world, then writes it out as a map folder any minigame engine can load
 public final class MapExporter {
@@ -43,8 +44,11 @@ public final class MapExporter {
         this.mainThread = task -> plugin.getServer().getScheduler().runTask(plugin, task);
     }
 
-    public void export(String id, int players, long seed, Path target, int perTick, Consumer<String> progress, Runnable onFinish) {
-        String worldName = "export_" + id;
+    public record Request(String id, int players, long seed, Theme theme, Path target) {
+    }
+
+    public void export(Request request, int perTick, Consumer<String> progress, Runnable onFinish) {
+        String worldName = "export_" + request.id();
         try {
             deleteTree(plugin.getServer().getLevelDirectory().resolve("dimensions").resolve(plugin.namespace()).resolve(worldName));
         } catch (IOException e) {
@@ -63,8 +67,8 @@ public final class MapExporter {
             return;
         }
 
-        BlockBuffer buffer = ArenaGenerator.generate(seed, players);
-        String mapYaml = mapYaml("Colosseum " + seed, buffer);
+        BlockBuffer buffer = ArenaGenerator.generate(request.seed(), request.players(), request.theme());
+        String mapYaml = mapYaml(request.theme().displayName() + " " + request.seed(), buffer);
         int radius = buffer.clearRadius();
         // The world is empty void, so skip BuildTask's clearing pass
         buffer.clearCylinder(-1, 0, 0);
@@ -77,7 +81,7 @@ public final class MapExporter {
         }
 
         new BuildTask(world, 0, ORIGIN_Y, 0, buffer, perTick, progress,
-                () -> save(world, mapYaml, target, progress, onFinish)).runTaskTimer(plugin, 1L, 1L);
+                () -> save(world, mapYaml, request.target(), progress, onFinish)).runTaskTimer(plugin, 1L, 1L);
     }
 
     public void shutdown() {

@@ -6,7 +6,7 @@ description: Generates the Last Man Standing lobby hub and battle arena.
 commands:
   lmsmap:
     description: Build / teleport to the LMS hub and arena.
-    usage: /lmsmap <hub|arena|tp|info>
+    usage: /lmsmap <hub|arena|export|tp|info>
     permission: lmsmaps.admin
 permissions:
   lmsmaps.admin:

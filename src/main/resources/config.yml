@@ -4,6 +4,9 @@ blocks-per-tick: 4000
 # Default number of spawn pads for /lmsmap arena (2-24).
 arena-players: 12
 
+# Arena theme when none is given: colosseum, desert, snow, nether or random.
+default-theme: colosseum
+
 # Where /lmsmap export writes map folders, relative to the plugins folder.
 export-folder: "Nature7/maps/last_standing"
 

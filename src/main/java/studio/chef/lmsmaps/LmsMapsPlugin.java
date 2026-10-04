@@ -17,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import studio.chef.lmsmaps.gen.ArenaGenerator;
 import studio.chef.lmsmaps.gen.BlockBuffer;
 import studio.chef.lmsmaps.gen.HubGenerator;
+import studio.chef.lmsmaps.gen.Theme;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * /lmsmap hub [seed]              build the lobby hub where you stand
- * /lmsmap arena [players] [seed]  build the battle arena where you stand
+ * /lmsmap arena [players] [seed] [theme]  build the battle arena where you stand
  * /lmsmap tp <hub|arena>          teleport to the saved spawn
  * /lmsmap info                    show what's saved
  */
@@ -66,14 +67,20 @@ public final class LmsMapsPlugin extends JavaPlugin implements TabExecutor, List
             case "arena" -> {
                 if (!(sender instanceof Player p)) { msg(sender, "&cRun this in-game."); return true; }
                 int players = args.length > 1 ? (int) parseLong(args[1], 12) : getConfig().getInt("arena-players", 12);
-                long seed = args.length > 2 ? parseLong(args[2], 1234L) : 1234L;
-                build(p, "arena", ArenaGenerator.generate(seed, players));
+                long seed = args.length > 2 ? parseLong(args[2], randomSeed()) : 1234L;
+                Theme theme = theme(sender, args.length > 3 ? args[3] : defaultTheme());
+                if (theme == null) return true;
+                BlockBuffer buffer = ArenaGenerator.generate(seed, players, theme);
+                buffer.meta("theme", theme.id());
+                build(p, "arena", buffer);
             }
             case "export" -> {
-                if (args.length < 2) { msg(sender, "&e/lmsmap export <id> [players] [seed]"); return true; }
+                if (args.length < 2) { msg(sender, "&e/lmsmap export <id> [players] [seed] [theme]"); return true; }
                 int players = args.length > 2 ? (int) parseLong(args[2], 12) : getConfig().getInt("arena-players", 12);
-                long seed = args.length > 3 ? parseLong(args[3], 1234L) : ThreadLocalRandom.current().nextInt(100_000);
-                export(sender, args[1].toLowerCase(Locale.ROOT), players, seed);
+                long seed = args.length > 3 ? parseLong(args[3], randomSeed()) : randomSeed();
+                Theme theme = theme(sender, args.length > 4 ? args[4] : defaultTheme());
+                if (theme == null) return true;
+                export(sender, args[1].toLowerCase(Locale.ROOT), players, seed, theme);
             }
             case "tp" -> {
                 if (!(sender instanceof Player p) || args.length < 2) { msg(sender, "&e/lmsmap tp <hub|arena>"); return true; }
@@ -100,7 +107,34 @@ public final class LmsMapsPlugin extends JavaPlugin implements TabExecutor, List
         if (args.length == 2 && args[0].equalsIgnoreCase("tp")) return List.of("hub", "arena");
         if (args.length == 2 && args[0].equalsIgnoreCase("arena")) return List.of("8", "12", "16", "24");
         if (args.length == 3 && args[0].equalsIgnoreCase("export")) return List.of("8", "12", "16", "24");
+        if (args.length == 3 && args[0].equalsIgnoreCase("arena")) return List.of("random");
+        if (args.length == 4 && args[0].equalsIgnoreCase("export")) return List.of("random");
+        if ((args.length == 4 && args[0].equalsIgnoreCase("arena")) || (args.length == 5 && args[0].equalsIgnoreCase("export"))) {
+            List<String> names = new ArrayList<>(themeNames());
+            names.add("random");
+            return names;
+        }
         return List.of();
+    }
+
+    private String defaultTheme() {
+        return getConfig().getString("default-theme", Theme.COLOSSEUM.id());
+    }
+
+    // "random" picks one, anything unknown gets the list of real themes back
+    private static Theme theme(CommandSender sender, String name) {
+        if (name.equalsIgnoreCase("random")) return Theme.ALL.get(ThreadLocalRandom.current().nextInt(Theme.ALL.size()));
+        Optional<Theme> theme = Theme.byId(name);
+        if (theme.isEmpty()) msg(sender, "&cUnknown theme '" + name + "', pick one of: " + String.join(", ", themeNames()) + ", random");
+        return theme.orElse(null);
+    }
+
+    private static List<String> themeNames() {
+        return Theme.ALL.stream().map(Theme::id).toList();
+    }
+
+    private static long randomSeed() {
+        return ThreadLocalRandom.current().nextInt(100_000);
     }
 
     private void build(Player p, String name, BlockBuffer buffer) {
@@ -119,7 +153,7 @@ public final class LmsMapsPlugin extends JavaPlugin implements TabExecutor, List
         }).runTaskTimer(this, 1L, 1L);
     }
 
-    private void export(CommandSender sender, String id, int players, long seed) {
+    private void export(CommandSender sender, String id, int players, long seed, Theme theme) {
         if (!MAP_ID.matcher(id).matches()) { msg(sender, "&cMap ids use lowercase letters, digits and underscores."); return; }
         if (building) { msg(sender, "&cA build is already running."); return; }
         Path target = getDataFolder().toPath().getParent()
@@ -127,8 +161,8 @@ public final class LmsMapsPlugin extends JavaPlugin implements TabExecutor, List
                 .resolve(id);
         if (Files.exists(target)) { msg(sender, "&c" + target + " already exists, delete it or pick another id."); return; }
         building = true;
-        msg(sender, "&eExporting arena '" + id + "' (" + players + " spawns, seed " + seed + ")...");
-        exporter.export(id, players, seed, target, getConfig().getInt("blocks-per-tick", 4000),
+        msg(sender, "&eExporting " + theme.displayName() + " arena '" + id + "' (" + players + " spawns, seed " + seed + ")...");
+        exporter.export(new MapExporter.Request(id, players, seed, theme, target), getConfig().getInt("blocks-per-tick", 4000),
                 s -> msg(sender, s), () -> building = false);
     }
 
