@@ -12,6 +12,11 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.129-stable")
+
+    testImplementation("io.papermc.paper:paper-api:26.2.build.129-stable")
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
@@ -22,6 +27,10 @@ tasks {
     compileJava {
         options.encoding = "UTF-8"
         options.release = 25
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     processResources {
