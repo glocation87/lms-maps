@@ -7,8 +7,8 @@ arena-players: 12
 # Arena theme when none is given: colosseum, desert, snow, nether or random.
 default-theme: colosseum
 
-# Where /lmsmap export writes map folders, relative to the plugins folder.
-export-folder: "Nature7/maps/last_standing"
+# Nature7's maps folder, relative to the plugins folder. Exports go into <maps-folder>/<game>/<id>.
+maps-folder: "Nature7/maps"
 
 # What happens when a player steps on the gold PLAY pad in the hub.
 join-pad:

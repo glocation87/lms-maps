@@ -25,8 +25,8 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
-import studio.chef.lmsmaps.gen.ArenaGenerator;
 import studio.chef.lmsmaps.gen.BlockBuffer;
+import studio.chef.lmsmaps.gen.GameKind;
 import studio.chef.lmsmaps.gen.Theme;
 
 // Builds an arena into its own void world, then writes it out as a map folder any minigame engine can load
@@ -44,7 +44,7 @@ public final class MapExporter {
         this.mainThread = task -> plugin.getServer().getScheduler().runTask(plugin, task);
     }
 
-    public record Request(String id, int players, long seed, Theme theme, Path target) {
+    public record Request(String id, GameKind game, int players, long seed, Theme theme, Path target) {
     }
 
     public void export(Request request, int perTick, Consumer<String> progress, Runnable onFinish) {
@@ -67,7 +67,7 @@ public final class MapExporter {
             return;
         }
 
-        BlockBuffer buffer = ArenaGenerator.generate(request.seed(), request.players(), request.theme());
+        BlockBuffer buffer = request.game().generate(request.seed(), request.players(), request.theme());
         String mapYaml = mapYaml(request.theme().displayName() + " " + request.seed(), buffer);
         int radius = buffer.clearRadius();
         // The world is empty void, so skip BuildTask's clearing pass
@@ -134,20 +134,37 @@ public final class MapExporter {
         }
     }
 
-    private static String mapYaml(String name, BlockBuffer buffer) {
-        int radius = buffer.clearRadius();
+    static String mapYaml(String name, BlockBuffer buffer) {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.set("name", name);
         yaml.set("authors", List.of("LmsMaps"));
         yaml.set("spectator-spawn", point(0.5, ORIGIN_Y + SPECTATOR_HEIGHT, 0.5, 0, 90));
-        yaml.set("bounds.min", block(-radius, ORIGIN_Y + buffer.clearMinY(), -radius));
-        yaml.set("bounds.max", block(radius, ORIGIN_Y + buffer.clearMaxY(), radius));
-        List<Map<String, Object>> spawns = new ArrayList<>();
-        for (BlockBuffer.Spawn spawn : buffer.spawns()) {
-            spawns.add(point(spawn.x(), ORIGIN_Y + spawn.y(), spawn.z(), spawn.yaw(), 0));
+        BlockBuffer.Region bounds = buffer.bounds();
+        if (bounds == null) {
+            int radius = buffer.clearRadius();
+            bounds = new BlockBuffer.Region(-radius, buffer.clearMinY(), -radius, radius, buffer.clearMaxY(), radius);
         }
-        yaml.set("game.spawns", spawns);
+        yaml.set("bounds.min", block(bounds.minX(), ORIGIN_Y + bounds.minY(), bounds.minZ()));
+        yaml.set("bounds.max", block(bounds.maxX(), ORIGIN_Y + bounds.maxY(), bounds.maxZ()));
+        if (!buffer.spawns().isEmpty()) {
+            yaml.set("game.spawns", points(buffer.spawns()));
+        }
+        for (Map.Entry<String, List<BlockBuffer.Spawn>> marker : buffer.markers().entrySet()) {
+            yaml.set("game." + marker.getKey(), points(marker.getValue()));
+        }
+        for (Map.Entry<String, BlockBuffer.Spawn> single : buffer.points().entrySet()) {
+            BlockBuffer.Spawn at = single.getValue();
+            yaml.set("game." + single.getKey(), point(at.x(), ORIGIN_Y + at.y(), at.z(), at.yaw(), 0));
+        }
         return yaml.saveToString();
+    }
+
+    private static List<Map<String, Object>> points(List<BlockBuffer.Spawn> spawns) {
+        List<Map<String, Object>> points = new ArrayList<>();
+        for (BlockBuffer.Spawn spawn : spawns) {
+            points.add(point(spawn.x(), ORIGIN_Y + spawn.y(), spawn.z(), spawn.yaw(), 0));
+        }
+        return points;
     }
 
     private static Map<String, Object> point(double x, double y, double z, float yaw, float pitch) {
